@@ -9,17 +9,44 @@ class User {
    */
 
   static async register({ username, password, first_name, last_name, phone }) {
+    const result = await db.query(
+      
+          `INSERT INTO users (username,
+                              password,
+                              first_name,
+                              last_name, 
+                              phone
+              VALUES
+                ($1, $2, $3, $4, $5)
+              RETURNING username, password, first_name, last_name, phone`,
+          [username, password, first_name, last_name, phone]);
+
+      return result.rows[0];
   }
 
   /** Authenticate: is username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
-  }
+    
+    if (username) {
+      if (await bcrypt.compare(password, user.password) === true) {
+        return true;
+    } 
+    return false;
+    }
+}
 
   /** Update last_login_at for user */
 
   static async updateLoginTimestamp(username) {
-  }
+    const result = await db.query(
+          `UPDATE users
+          SET last_login_at = current_timestamp
+            WHERE username = $1
+            RETURNING username, last_login_at`,
+            [username]);
+  
+  } 
 
   /** All: basic info on all users:
    * [{username, first_name, last_name}, ...] */
