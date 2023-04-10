@@ -38,7 +38,7 @@ CREATE TABLE users (
   last_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   join_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  last_login_at TIMESTAMP WITH TIME ZONE);
+  last_login_at TIMESTAMP WITH TIME ZONE)
 
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
