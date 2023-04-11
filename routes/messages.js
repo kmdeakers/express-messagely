@@ -3,6 +3,13 @@
 const Router = require("express").Router;
 const router = new Router();
 
+const { BadRequestError, UnauthorizedError } = require("../expressError");
+const { SECRET_KEY } = require("../config.js");
+const User = require("../models/user.js");
+const { authenticateJWT,
+        ensureLoggedIn,
+        ensureCorrectUser, } = require("../middleware/auth.js");
+
 /** GET /:id - get detail of message.
  *
  * => {message: {id,
@@ -15,6 +22,12 @@ const router = new Router();
  * Makes sure that the currently-logged-in users is either the to or from user.
  *
  **/
+router.get("/:id", ensureLoggedIn, async function (req, res, next){
+  const { id, from_user, to_user, body, sent_at, read_at } = req.params;
+  const message = await Message.get(id);
+
+
+})
 
 
 /** POST / - post message.
