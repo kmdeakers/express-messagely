@@ -19,18 +19,17 @@ class User {
     const result = await db.query(
 
       `INSERT INTO users (username,
-                              password,
-                              first_name,
-                              last_name,
-                              phone,
-                              join_at,
-                              last_login_at)
+                          password,
+                          first_name,
+                          last_name,
+                          phone,
+                          join_at,
+                          last_login_at
+                        )
               VALUES
                 ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
-              RETURNING username, password, first_name, last_name, phone, join_at`,
+              RETURNING username, password, first_name, last_name, phone`,
       [username, hashedPassword, first_name, last_name, phone]);
-
-
 
     return result.rows[0];
   }
@@ -45,7 +44,8 @@ class User {
       [username]);
     const user = result.rows[0];
 
-    if (!user) throw new NotFoundError(`User can't be found`);
+    //TODO: change to something vague invalid
+    // if (!user) throw new NotFoundError(`User can't be found`);
     if (user) {
       if (await bcrypt.compare(password, user.password) === true) {
 
@@ -64,6 +64,9 @@ class User {
             WHERE username = $1
             RETURNING username, last_login_at`,
       [username]);
+
+  //take a look at what comes back from the query and throw a NotFoundError if
+  //no results.rows[0]
   }
 
   /** All: basic info on all users:
@@ -72,6 +75,7 @@ class User {
 
   static async all() {
     const results = await db.query(
+      //TODO: dont query for fields we dont need
       `SELECT username,
               first_name,
               last_name,
@@ -80,6 +84,8 @@ class User {
               last_login_at
         FROM users`
     );
+    //leaving map in future proofs for any query changes
+
     const users = results.rows;
     return users.map(u => ({
       username: u.username,
@@ -124,6 +130,7 @@ class User {
    */
 
   static async messagesFrom(username) {
+    //
     const results = await db.query(
       `SELECT id,
               m.from_username,
@@ -141,21 +148,9 @@ class User {
           WHERE f.username = $1`,
       [username]);
     const messagesFromUser = results.rows;
-    // if (!messagesFromUser.length) throw new NotFoundError('No messages found');
-
-    //[{id, to_username, body, sent_at, read_at}]
-    // return messagesFromUser.map(m => ({
-    //   id: m.id,
-    //   to_user: {
-    //     username: m.to_username,
-    //     first_name: m.first_name,
-    //     last_name: m.last_name,
-    //     phone: m.phone,
-    //   },
-    //   body: m.body,
-    //   sent_at: m.sent_at,
-    //   read_at: m.read_at
-    // }));
+    //TODO: users can have no messages -remove this error
+    if (!messagesFromUser.length) throw new NotFoundError('No messages found');
+    //TODO: change back to map
     const messages = [];
     for (let m of messagesFromUser) {
       m = {
@@ -202,7 +197,7 @@ class User {
       [username]);
     const messagesToUser = results.rows;
     if (!messagesToUser.length) throw new NotFoundError('No messages found');
-
+    //TODO: all same notes from above
     //[{id, to_username, body, sent_at, read_at}]
     return messagesToUser.map(m => ({
       id: m.id,
